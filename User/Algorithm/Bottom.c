@@ -11,8 +11,8 @@ uint8_t MecanumInit(mecanumInit_typdef *mecanumInitT)
 {
     /*初始化参数*/
     mecanumInitT->deceleration_ratio = 0.052075f; // 减速比1/19
-    mecanumInitT->max_vw_speed       = 50000;     // r方向上的最大速度单位：毫米/秒
-    mecanumInitT->max_vx_speed       = 50000;     // x方向上的最大速度单位：毫米/秒
+    mecanumInitT->max_vw_speed       = 1000;     // r方向上的最大速度单位：毫米/秒
+    mecanumInitT->max_vx_speed       = 1000;     // x方向上的最大速度单位：毫米/秒
     mecanumInitT->max_vy_speed       = 50000;     // y方向上的最大速度单位：毫米/秒
     mecanumInitT->max_wheel_ramp     = 8000;      // 3508最大转速不包含限速箱
     mecanumInitT->rotate_x_offset    = 00.0f;     // 云台在x轴的偏移量  mm
@@ -72,7 +72,7 @@ void MecanumResolve(float *wheel_rpm, float vx_temp, float vy_temp, float vr, me
     //     {
     //         max = RUI_F_MATH_ABS_float(wheel_rpm[i]);
     //     }
-
+    //
     // }
     // // 如果超出了最大值，则进行等比例降速
     // if (max > mecanumInit_t.max_wheel_ramp)

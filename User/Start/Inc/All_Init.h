@@ -35,6 +35,7 @@
 #include "VT13.h"
 #include "mahony_filter.h"
 #include "VOFA.h"
+ #include "Bottom.h"
 
 void Everying_Init(void);
 extern uint8_t VT13_RX_DATA[21];
@@ -59,6 +60,8 @@ extern MOTOR_Typdef ALL_MOTOR;
 extern pid_type_def imu_temp;
 
 extern IMU_Data_t IMU_Data;
+
+extern mecanumInit_typdef mecanumNumber;
 
 extern RUI_ROOT_STATUS_Typedef RUI_ROOT_STATUS;
 extern uint8_t sd_v_buff[24];

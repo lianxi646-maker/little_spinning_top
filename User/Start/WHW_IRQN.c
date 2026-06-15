@@ -1,5 +1,6 @@
 #include "WHW_IRQN.h"
 #include "Robot.h"
+#include "Chassis_Task.h"
 
 //34ms,画UI任务
 void StartRobotUITask(void const * argument)
@@ -22,9 +23,15 @@ void StartMoveTask(void const * argument)
     portTickType currentTimeMove;
     currentTimeMove = xTaskGetTickCount();
 
+	//初始化麦轮参数
+	MecanumInit(&mecanumNumber);
+	//初始化底盘电机PID
+	MOTOR_PID_CHASSIS_INIT();
+
     for (;;)
     {
-    DJI_Current_Ctrl(&hcan1,0x200,0,0,400,0);
+    	//执行底盘电机总任务
+    	chassis_task();
     	vTaskDelay (1);
     }
 }
@@ -133,13 +140,18 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 		//CAN2
 		switch (can_rx.StdId)
 		{
-            case 0x201://摩擦1
-                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Shoot_L.DATA, rx_data);
+            case 0x201://轮1
+                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_1.DATA, rx_data);
                 break;
-
-            case 0x202://摩擦2
-                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Shoot_R.DATA, rx_data);
+            case 0x202://轮2
+                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_2.DATA, rx_data);
                 break;
+			case 0x203://轮3
+				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_3.DATA, rx_data);
+				break;
+			case 0x204://轮4
+				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_4.DATA, rx_data);
+				break;
 			default:
 				break;
         }
