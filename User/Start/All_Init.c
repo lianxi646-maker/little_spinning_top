@@ -23,7 +23,7 @@ MOTOR_Typdef ALL_MOTOR;
 pid_type_def imu_temp;
 IMU_Data_t IMU_Data;
 
-//底盘（麦轮）
+//底盘底层参数（麦轮）
 mecanumInit_typdef mecanumNumber = {0};
 
 //运动控制监测结构体

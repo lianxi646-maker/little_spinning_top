@@ -23,7 +23,7 @@ void StartMoveTask(void const * argument)
     portTickType currentTimeMove;
     currentTimeMove = xTaskGetTickCount();
 
-	//初始化麦轮参数
+	//初始化麦轮底层参数
 	MecanumInit(&mecanumNumber);
 	//初始化底盘电机PID
 	MOTOR_PID_CHASSIS_INIT();

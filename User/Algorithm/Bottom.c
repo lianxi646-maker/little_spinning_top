@@ -11,9 +11,9 @@ uint8_t MecanumInit(mecanumInit_typdef *mecanumInitT)
 {
     /*初始化参数*/
     mecanumInitT->deceleration_ratio = 0.052075f; // 减速比1/19
-    mecanumInitT->max_vw_speed       = 1000;     // r方向上的最大速度单位：毫米/秒
-    mecanumInitT->max_vx_speed       = 1000;     // x方向上的最大速度单位：毫米/秒
-    mecanumInitT->max_vy_speed       = 50000;     // y方向上的最大速度单位：毫米/秒
+    mecanumInitT->max_vw_speed       = 10000;     // r方向上的最大速度单位：毫米/秒
+    mecanumInitT->max_vx_speed       = 10000;     // x方向上的最大速度单位：毫米/秒
+    mecanumInitT->max_vy_speed       = 10000;     // y方向上的最大速度单位：毫米/秒
     mecanumInitT->max_wheel_ramp     = 8000;      // 3508最大转速不包含限速箱
     mecanumInitT->rotate_x_offset    = 00.0f;     // 云台在x轴的偏移量  mm
     mecanumInitT->rotate_y_offset    = 00.0f;     // 云台在y轴的偏移量  mm

@@ -13,7 +13,7 @@
 #include "controller.h"
 #include "Bottom.h"
 
-
+//底盘应用层参数
 typedef struct
 {
     float vx;
@@ -28,7 +28,7 @@ typedef struct
 
 void MOTOR_PID_CHASSIS_INIT();
 void chassis_task();
-void speed_control(float vx_max,float vy_max,float vr_max,DBUS_Typedef DBUS,uint8_t ControlWay);
+void speed_mapping(mecanumInit_typdef *mecanumInit_t,DBUS_Typedef DBUS,uint8_t ControlWay);
 
 
 
