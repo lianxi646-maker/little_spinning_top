@@ -28,7 +28,7 @@ typedef struct
 
 void MOTOR_PID_CHASSIS_INIT();
 void chassis_task();
-void speed_mapping(mecanumInit_typdef *mecanumInit_t,DBUS_Typedef DBUS,uint8_t ControlWay);
+void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumInit_t,DBUS_Typedef DBUS,uint8_t ControlWay);
 
 
 
