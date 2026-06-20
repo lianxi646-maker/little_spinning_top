@@ -21,7 +21,7 @@ uint8_t MecanumInit(mecanumInit_typdef *mecanumInitT)
     mecanumInitT->wheeltrack         = 300;       // 轴距	mm
     mecanumInitT->wheel_perimeter    = 478;       // 轮子的周长(mm)
 
-    /*计算旋转比率*/
+    /*计算旋转比率*/ //1 rad ≈ 57.3°
     mecanumInitT->raid_fr = ((mecanumInitT->wheelbase + mecanumInitT->wheeltrack) / 2.0f -
                              mecanumInitT->rotate_x_offset + mecanumInitT->rotate_y_offset) /
                             57.3f;
@@ -65,22 +65,23 @@ void MecanumResolve(float *wheel_rpm, float vx_temp, float vy_temp, float vr, me
     wheel_rpm[1] = (vx_temp + vy_temp + vr * mecanumInit_t->raid_fl) * mecanumInit_t->wheel_rpm_ratio;
     wheel_rpm[2] = (vx_temp - vy_temp + vr * mecanumInit_t->raid_bl) * mecanumInit_t->wheel_rpm_ratio;
     wheel_rpm[3] = (-vx_temp - vy_temp + vr * mecanumInit_t->raid_br) * mecanumInit_t->wheel_rpm_ratio;
-    // // 寻找四个轮子里面的最大值
-    // for (uint8_t i = 0; i < 4; i++)
-    // {
-    //     if (RUI_F_MATH_ABS_float(wheel_rpm[i]) > max)
-    //     {
-    //         max = RUI_F_MATH_ABS_float(wheel_rpm[i]);
-    //     }
-    //
-    // }
-    // // 如果超出了最大值，则进行等比例降速
-    // if (max > mecanumInit_t.max_wheel_ramp)
-    // {
-    //     float rate = mecanumInit_t.max_wheel_ramp / max;
-    //     for (uint8_t i = 0; i < 4; i++)
-    //         wheel_rpm[i] *= rate;
-    // }
+    // 寻找四个轮子里面的最大值
+    float max = 0;
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        if (MATH_ABS_float(wheel_rpm[i]) > max)
+        {
+            max = MATH_ABS_float(wheel_rpm[i]);
+        }
+
+    }
+    // 如果超出了最大值，则进行等比例降速
+    if (max > mecanumInit_t->max_wheel_ramp)
+    {
+        float rate = mecanumInit_t->max_wheel_ramp / max;
+        for (uint8_t i = 0; i < 4; i++)
+            wheel_rpm[i] *= rate;
+    }
 }
 
 uint8_t OmniInit(OmniInit_typdef *OmniInitT)

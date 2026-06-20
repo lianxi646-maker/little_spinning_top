@@ -1,6 +1,7 @@
 #ifndef __ALL_INIT_H
 #define __ALL_INIT_H
 
+
 #include "can_bsp.h"
 #include "bsp_dwt.h"
 #include "tim.h"
@@ -16,10 +17,7 @@
 #include "IMU_Task.h"
 #include "DM_Motor.h"
 #include "Motors.h"
-#include "can_bsp.h"
-#include "Gimbal_Task.h"
 #include "Shoot_Task.h"
-#include "Chassis_Task.h"
 #include "controller.h"
 #include "Power_CAP.h"
 #include "Power_Ctrl.h"
@@ -35,7 +33,8 @@
 #include "VT13.h"
 #include "mahony_filter.h"
 #include "VOFA.h"
- #include "Bottom.h"
+#include "Bottom.h"
+#include "Board2Board.h"
 
 void Everying_Init(void);
 extern uint8_t VT13_RX_DATA[21];
@@ -68,6 +67,8 @@ extern uint8_t sd_v_buff[24];
 //extern uint8_t sd_v_buff[20];
 
 extern uint8_t VisionRx[30];
+
+extern SEND_DATA_TypDef send_data;
 
 extern CAPDATE_TYPDEF CAPDATE;
 

@@ -2,16 +2,7 @@
 #define __CHASSIS_TASK_H
 
 #include "main.h"
-#include "DJI_Motor.h"
-#include "DM_Motor.h"
-#include "DBUS.h"
-#include "MY_define.h"
-#include "RUI_ROOT_INIT.h"
-#include "Motors.h"
-#include "Power_Ctrl.h"
-#include "pid_temp.h"
-#include "controller.h"
-#include "Bottom.h"
+#include "All_Init.h"
 
 //底盘应用层参数
 typedef struct
@@ -29,7 +20,8 @@ typedef struct
 void MOTOR_PID_CHASSIS_INIT();
 void chassis_task();
 void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumInit_t,DBUS_Typedef DBUS,uint8_t ControlWay);
-
+void MOTOR_PID_CHASSIS_CLT();
+void MOTOR_CAN_CHASSIS_SEND();
 
 
 #endif

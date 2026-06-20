@@ -13,6 +13,7 @@
 #include "controller.h"
 #include "MY_define.h"
 #include "can_bsp.h"
+#include "pid_temp.h"
 
 typedef struct
 {

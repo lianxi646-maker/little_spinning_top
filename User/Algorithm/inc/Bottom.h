@@ -3,7 +3,7 @@
 
 #include "main.h"
 #include "MY_Define.h"
-
+#include "RUI_MATH.h"
 typedef struct
 {
     float wheel_perimeter;    /* 轮的周长（mm）*/
