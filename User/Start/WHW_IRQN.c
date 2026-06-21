@@ -27,11 +27,14 @@ void StartMoveTask(void const * argument)
 	MecanumInit(&mecanumNumber);
 	//初始化底盘电机PID
 	MOTOR_PID_CHASSIS_INIT();
-
+	//初始化云台电机PID
+	MOTOR_PID_GIMBAL_INIT();
     for (;;)
     {
     	//执行底盘电机总任务
     	chassis_task();
+    	//执行云台电机总任务
+    	Gimbal_task();
     	vTaskDelay (1);
     }
 }

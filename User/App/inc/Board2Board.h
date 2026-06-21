@@ -6,17 +6,21 @@
 #define C_BOARD_FRAMEWORK_BOARD2BOARD_H
 
 #include "IMU_Task.h"
+#include "DBUS.h"
 
 typedef struct
 {
     struct
     {
         IMU_Data_t C_IMU_Data;
-    }pitch_need;
+        DBUS_Typedef C_DBUS;
+        float chassis_vr;
+    }gimbal_need;
 
     struct
     {
         IMU_Data_t P_IMU_Data;
+        float gimbal_yaw_rad;
     }chassis_need;
 }SEND_DATA_TypDef;
 
