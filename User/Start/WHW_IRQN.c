@@ -162,6 +162,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 			case 0x204://轮4
 				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_4.DATA, rx_data);
 				break;
+			case 0x301:
+				dm4310_RXdata(&ALL_MOTOR.m_dm4310_y_t, rx_data);
+				break;
+			case 0x302:
+				dm4310_RXdata(&ALL_MOTOR.m_dm4310_p_t, rx_data);
+				break;
 			default:
 				break;
         }
