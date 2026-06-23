@@ -29,9 +29,6 @@ mecanumInit_typdef mecanumNumber = {0};
 //运动控制监测结构体
 RUI_ROOT_STATUS_Typedef RUI_ROOT_STATUS;
 
-//板间通信数据
-SEND_DATA_TypDef send_data = {0};
-
 //视觉
 uint8_t VisionRx[30];
 uint8_t sd_v_buff[24];

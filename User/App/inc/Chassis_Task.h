@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "All_Init.h"
+#include "Board2Board.h"
 
 //底盘应用层参数
 typedef struct
@@ -21,8 +22,8 @@ typedef struct
     float wheel_rmp[4];
 }ChassisData_TypDef;
 
-#define REMOTE 0        //遥控器模式宏定义
-#define KEY_MOUSE 1     //键鼠模式宏定义
+extern ChassisData_TypDef chassis_data;
+
 
 
 void MOTOR_PID_CHASSIS_INIT();
@@ -31,6 +32,7 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
 void MOTOR_PID_CHASSIS_CLT();
 void MOTOR_CAN_CHASSIS_SEND();
 void CHASSIS_FOLLOW_CLT();
+void GIMBAL_RAD_FORWARD(float t);
 
 
 #endif

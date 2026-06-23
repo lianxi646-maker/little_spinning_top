@@ -1,6 +1,7 @@
 #include "WHW_IRQN.h"
 #include "Robot.h"
 #include "Chassis_Task.h"
+#include "Board2Board.h"
 
 //34ms,画UI任务
 void StartRobotUITask(void const * argument)
@@ -46,7 +47,7 @@ void StartDefiantTask(void const * argument)
     currentTimeDefiant = xTaskGetTickCount();
     for(;;)
     {
-
+		Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad);
     	currentTimeDefiant += 2;
     	osDelayUntil(currentTimeDefiant);
     }
@@ -130,8 +131,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 		//CAN1
 		switch (can_rx.StdId)
 		{
-			case 0x203:
-				MOTOR_CAN_RX_2006RM(&ALL_MOTOR.DJI_3508_Shoot_M.DATA, rx_data);
+			case 0x226:
+				Board_to_Board_receive(&RT_data ,0x226 ,rx_data);
+				break;
+			case 0x227:
+				Board_to_Board_receive(&RT_data ,0x227 ,rx_data);
+				break;
+			case 0x228:
+				Board_to_Board_receive(&RT_data ,0x228 ,rx_data);
 				break;
 			default:
 				break;

@@ -34,7 +34,6 @@
 #include "mahony_filter.h"
 #include "VOFA.h"
 #include "Bottom.h"
-#include "Board2Board.h"
 
 void Everying_Init(void);
 extern uint8_t VT13_RX_DATA[21];
@@ -68,7 +67,6 @@ extern uint8_t sd_v_buff[24];
 
 extern uint8_t VisionRx[30];
 
-extern SEND_DATA_TypDef send_data;
 
 extern CAPDATE_TYPDEF CAPDATE;
 

@@ -12,7 +12,7 @@ void Gimbal_task()
     Gimbal_rmp_reslove();
 
     //将遥控器值映射到电机目标速度
-    Gimbal_rmp_mapping(0.5f,0.5f,6000.0f,2000.0f,send_data.gimbal_need.C_DBUS.Remote.S1);
+    Gimbal_rmp_mapping(0.5f,0.5f,6000.0f,2000.0f,RT_data.rx.DBUS.Remote.S1);
 
     //计算云台电机PID输出
     MOTOR_GIMBAL_CLT();
@@ -67,10 +67,10 @@ void Gimbal_angle_update()
 void Gimbal_rmp_reslove()
 {
     //解算云台yaw轴rpm
-    Gimbal_data.omega.yaw.omega_now = -(send_data.gimbal_need.C_IMU_Data.gyro[2]) - IMU_Data.gyro[0]*sinf(Gimbal_data.angle.pitch.rad) + IMU_Data.gyro[2]*cosf(Gimbal_data.angle.pitch.rad);
+    Gimbal_data.omega.yaw.omega_now = -(RT_data.rx.IMU_Data.gyro[2]) - IMU_Data.gyro[0]*sinf(Gimbal_data.angle.pitch.rad) + IMU_Data.gyro[2]*cosf(Gimbal_data.angle.pitch.rad);
     Gimbal_data.omega.yaw.rmp_now = Gimbal_data.omega.yaw.omega_now*9.55f;
     //解算云台pitch轴rpm
-    Gimbal_data.omega.pitch.omega_now = sinf(Gimbal_data.angle.yaw.rad)*send_data.gimbal_need.C_IMU_Data.gyro[0] - send_data.gimbal_need.C_IMU_Data.gyro[1]*cosf(Gimbal_data.angle.yaw.rad) + IMU_Data.gyro[1];
+    Gimbal_data.omega.pitch.omega_now = sinf(Gimbal_data.angle.yaw.rad)*RT_data.rx.IMU_Data.gyro[0] - RT_data.rx.IMU_Data.gyro[1]*cosf(Gimbal_data.angle.yaw.rad) + IMU_Data.gyro[1];
     Gimbal_data.omega.pitch.rmp_now = Gimbal_data.omega.pitch.omega_now*9.55f;
 }
 
@@ -78,15 +78,15 @@ void Gimbal_rmp_reslove()
 void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_angle_max , float pitch_angle_min, uint8_t mod)
 {
     //更新云台自稳补偿角速度
-    Gimbal_data.omega.yaw.omega_compensation = -send_data.gimbal_need.chassis_vr;
-    Gimbal_data.omega.pitch.omega_compensation = (sinf(Gimbal_data.angle.yaw.rad) * send_data.gimbal_need.C_IMU_Data.gyro[0] - cosf(Gimbal_data.angle.yaw.rad) * send_data.gimbal_need.C_IMU_Data.gyro[1]);
+    Gimbal_data.omega.yaw.omega_compensation = -RT_data.rx.chassis_vr;
+    Gimbal_data.omega.pitch.omega_compensation = (sinf(Gimbal_data.angle.yaw.rad) * RT_data.rx.IMU_Data.gyro[0] - cosf(Gimbal_data.angle.yaw.rad) * RT_data.rx.IMU_Data.gyro[1]);
     //控制模式状态机
     switch (mod)
     {
         //小陀螺模式，云台oitch固定为中值
         case 1:
             //解算云台yaw真正的角速度与双环角度目标
-            Gimbal_data.omega.yaw.omega_remote = send_data.gimbal_need.C_DBUS.Remote.CH0/yaw_omega_max;
+            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
             Gimbal_data.angle.yaw.encoder_target = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
             //保持pitch轴在中值
@@ -96,11 +96,11 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
         //无小陀螺，但保留底盘跟随，云台pitch可动
         case 2:
             //解算云台yaw真正的角速度与双环角度目标
-            Gimbal_data.omega.yaw.omega_remote = send_data.gimbal_need.C_DBUS.Remote.CH0/yaw_omega_max;
+            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
             Gimbal_data.angle.yaw.encoder_target = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
             //解算云台pitch真正的角速度与双环角度目标
-            Gimbal_data.omega.pitch.omega_remote = send_data.gimbal_need.C_DBUS.Remote.CH1/pitch_omega_max;
+            Gimbal_data.omega.pitch.omega_remote = RT_data.rx.DBUS.Remote.CH1/pitch_omega_max;
             Gimbal_data.angle.pitch.rad_target += (Gimbal_data.omega.pitch.omega_remote + Gimbal_data.omega.pitch.omega_compensation) * 0.0001;
             if (Gimbal_data.angle.pitch.rad_target > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
             if (Gimbal_data.angle.pitch.rad_target < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
@@ -119,13 +119,13 @@ void MOTOR_GIMBAL_CLT()
 //云台电机CAN发送
 void MOTOR_GIMBAL_CAN_SEND()
 {
-    DJI_Current_Ctrl(&hcan1,
+    DJI_Current_Ctrl(&hcan2,
                     0x1FE,
                     (int16_t)ALL_MOTOR.DJI_6020_Yaw.PID_S.Output,
                     (int16_t)ALL_MOTOR.DJI_6020_Pitch.PID_S.Output,
                     0,
                     0);
-    DJI_Current_Ctrl(&hcan1,
+    DJI_Current_Ctrl(&hcan2,
                     0x2FE,
                     0,
                     0,

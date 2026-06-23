@@ -12,6 +12,7 @@
 #include "controller.h"
 #include "pid_temp.h"
 #include <arm_math.h>
+#include "Board2Board.h"
 
 //云台应用层参数
 typedef struct
@@ -63,6 +64,8 @@ typedef struct
     }omega;
 
 }GIMBAL_TypDef;
+
+extern GIMBAL_TypDef Gimbal_data;
 
 void MOTOR_PID_GIMBAL_INIT();
 void Gimbal_angle_update();
