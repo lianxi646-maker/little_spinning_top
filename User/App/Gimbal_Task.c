@@ -27,27 +27,27 @@ void Gimbal_task()
 void MOTOR_PID_GIMBAL_INIT()
 {
     //初始化上电时电机角度误差
-    Gimbal_data.error.yaw_zero = ALL_MOTOR.DJI_6020_Yaw.DATA.Angle_Infinite;
-    Gimbal_data.error.pitch_zero = ALL_MOTOR.DJI_6020_Pitch.DATA.Angle_Infinite;
+    Gimbal_data.error.yaw_zero = ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite;
+    Gimbal_data.error.pitch_zero = ALL_MOTOR.m_dm4310_p_t.DATA.Angle_Infinite;
     //初始化云台pitch编码器中值
     Gimbal_data.angle.pitch.encoder_mid = 4000;
     //初始化云台yaw轴PID
     float PID_gimbal_yaw_S[3] = {10,0.0001,0};
     float PID_gimbal_yaw_P[3] = {3,0,0};
-    PID_Init(&ALL_MOTOR.DJI_6020_Yaw.PID_S,27000,7000,PID_gimbal_yaw_S,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
-    PID_Init(&ALL_MOTOR.DJI_6020_Yaw.PID_P,200,30,PID_gimbal_yaw_P,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
+    PID_Init(&ALL_MOTOR.m_dm4310_y_t.PID_S,27000,7000,PID_gimbal_yaw_S,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
+    PID_Init(&ALL_MOTOR.m_dm4310_y_t.PID_P,200,30,PID_gimbal_yaw_P,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
     //初始化云台pitch轴PID
     float PID_gimbal_pitch_P[3] = {3,0,0};
     float PID_gimbal_pitch_S[3] = {10,0.0001,0};
-    PID_Init(&ALL_MOTOR.DJI_6020_Pitch.PID_S,27000,7000,PID_gimbal_pitch_S,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
-    PID_Init(&ALL_MOTOR.DJI_6020_Pitch.PID_P,200,30,PID_gimbal_pitch_P,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
+    PID_Init(&ALL_MOTOR.m_dm4310_p_t.PID_S,27000,7000,PID_gimbal_pitch_S,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
+    PID_Init(&ALL_MOTOR.m_dm4310_p_t.PID_P,200,30,PID_gimbal_pitch_P,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
 }
 
 //将上电时云台yaw轴角度设置为0，pitch轴角度设置为陀螺仪pitch角
 void Gimbal_angle_update()
 {
     //更新云台yaw相对于底盘系角度   fomd()为取模函数
-    Gimbal_data.angle.yaw.degree = (ALL_MOTOR.DJI_6020_Yaw.DATA.Angle_Infinite - Gimbal_data.error.yaw_zero) * 360.0f / 8192;
+    Gimbal_data.angle.yaw.degree = (ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite - Gimbal_data.error.yaw_zero) * 360.0f / 8192;
     Gimbal_data.angle.yaw.rad_Infinite = Gimbal_data.angle.yaw.degree/57.3;
     Gimbal_data.angle.yaw.rad = fmod(Gimbal_data.angle.yaw.rad_Infinite, 6.28f);
     //将云台yaw相对于底盘系的角度归化为[-Π,Π]
@@ -55,7 +55,7 @@ void Gimbal_angle_update()
     if (Gimbal_data.angle.yaw.rad < -3.14f) Gimbal_data.angle.yaw.rad += 6.28f;
 
     //更新云台pitch轴相对于底盘角度
-    Gimbal_data.angle.pitch.degree = (ALL_MOTOR.DJI_6020_Pitch.DATA.Angle_Infinite - Gimbal_data.angle.pitch.encoder_mid) * 360.0f / 8192;
+    Gimbal_data.angle.pitch.degree = (ALL_MOTOR.m_dm4310_p_t.DATA.Angle_Infinite - Gimbal_data.angle.pitch.encoder_mid) * 360.0f / 8192;
     Gimbal_data.angle.pitch.rad_Infinite = Gimbal_data.angle.pitch.degree/57.3;
     Gimbal_data.angle.pitch.rad = fmod(Gimbal_data.angle.pitch.rad_Infinite, 6.28f);
     //将云台pitch相对于底盘系的角度归化为[-Π,Π]
@@ -63,7 +63,7 @@ void Gimbal_angle_update()
     if (Gimbal_data.angle.pitch.rad < -3.14f) Gimbal_data.angle.pitch.rad += 6.28f;
 }
 
-//用底盘陀螺仪和云台Pitch轴陀螺仪解算出当前云台两电机的rmp
+//用底盘陀螺仪和云台Pitch轴陀螺仪解算出当前云台两电机的rpm
 void Gimbal_rmp_reslove()
 {
     //解算云台yaw轴rpm
@@ -88,20 +88,21 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
             //解算云台yaw真正的角速度与双环角度目标
             Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
-            Gimbal_data.angle.yaw.encoder_target = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
+            ALL_MOTOR.m_dm4310_y_t.DATA.Aim = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
             //保持pitch轴在中值
             Gimbal_data.angle.pitch.rad_target += Gimbal_data.omega.pitch.omega_compensation * 0.0001;
-            Gimbal_data.angle.pitch.encoder_target = Gimbal_data.angle.pitch.encoder_mid + Gimbal_data.angle.pitch.rad_target * 8192 / 6.28f;
+            ALL_MOTOR.m_dm4310_p_t.DATA.Aim = Gimbal_data.angle.pitch.encoder_mid + Gimbal_data.angle.pitch.rad_target * 8192 / 6.28f;
         break;
         //无小陀螺，但保留底盘跟随，云台pitch可动
         case 2:
             //解算云台yaw真正的角速度与双环角度目标
             Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
-            Gimbal_data.angle.yaw.encoder_target = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
+            ALL_MOTOR.m_dm4310_y_t.DATA.Aim = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
             //解算云台pitch真正的角速度与双环角度目标
             Gimbal_data.omega.pitch.omega_remote = RT_data.rx.DBUS.Remote.CH1/pitch_omega_max;
             Gimbal_data.angle.pitch.rad_target += (Gimbal_data.omega.pitch.omega_remote + Gimbal_data.omega.pitch.omega_compensation) * 0.0001;
+            ALL_MOTOR.m_dm4310_p_t.DATA.Aim = Gimbal_data.angle.pitch.rad_target * 8192 / 6.28f;
             if (Gimbal_data.angle.pitch.rad_target > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
             if (Gimbal_data.angle.pitch.rad_target < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
         break;
@@ -110,19 +111,19 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
 //计算云台两电机的输出
 void MOTOR_GIMBAL_CLT()
 {
-    PID_Calculate(&ALL_MOTOR.DJI_6020_Yaw.PID_P,ALL_MOTOR.DJI_6020_Yaw.DATA.Angle_Infinite, Gimbal_data.angle.yaw.encoder_target);
-    PID_Calculate(&ALL_MOTOR.DJI_6020_Yaw.PID_S,Gimbal_data.omega.yaw.rmp_now,ALL_MOTOR.DJI_6020_Yaw.PID_P.Output);
+    PID_Calculate(&ALL_MOTOR.m_dm4310_y_t.PID_P,ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite, ALL_MOTOR.m_dm4310_y_t.DATA.Aim);
+    PID_Calculate(&ALL_MOTOR.m_dm4310_y_t.PID_S,Gimbal_data.omega.yaw.rmp_now,ALL_MOTOR.m_dm4310_y_t.PID_P.Output);
 
-    PID_Calculate(&ALL_MOTOR.DJI_6020_Pitch.PID_P,ALL_MOTOR.DJI_6020_Pitch.DATA.Angle_Infinite, Gimbal_data.angle.pitch.encoder_target);
-    PID_Calculate(&ALL_MOTOR.DJI_6020_Pitch.PID_S,Gimbal_data.omega.pitch.rmp_now,ALL_MOTOR.DJI_6020_Pitch.PID_P.Output);
+    PID_Calculate(&ALL_MOTOR.m_dm4310_p_t.PID_P,ALL_MOTOR.m_dm4310_p_t.DATA.Angle_Infinite, ALL_MOTOR.m_dm4310_p_t.DATA.Aim);
+    PID_Calculate(&ALL_MOTOR.m_dm4310_p_t.PID_S,Gimbal_data.omega.pitch.rmp_now,ALL_MOTOR.m_dm4310_p_t.PID_P.Output);
 }
 //云台电机CAN发送
 void MOTOR_GIMBAL_CAN_SEND()
 {
     DJI_Current_Ctrl(&hcan2,
                     0x1FE,
-                    (int16_t)ALL_MOTOR.DJI_6020_Yaw.PID_S.Output,
-                    (int16_t)ALL_MOTOR.DJI_6020_Pitch.PID_S.Output,
+                    (int16_t)ALL_MOTOR.m_dm4310_y_t.PID_S.Output,
+                    (int16_t)ALL_MOTOR.m_dm4310_p_t.PID_S.Output,
                     0,
                     0);
     DJI_Current_Ctrl(&hcan2,
