@@ -25,6 +25,7 @@ typedef struct
         uint8_t buf_one[8];
         uint8_t buf_two[8];
         uint8_t buf_three[8];
+        uint8_t buf_four[8];
     }tx;
 }RT_DATA_TypDef;
 
@@ -40,6 +41,12 @@ typedef union
     uint8_t Data[2];
     int16_t Data_16;
 }RX_Data_16;
+
+typedef union
+{
+    uint8_t Data;
+    uint8_t Data_u8;
+}RX_Data_8;
 
 extern RT_DATA_TypDef RT_data;
 

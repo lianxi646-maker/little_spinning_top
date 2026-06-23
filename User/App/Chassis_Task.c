@@ -20,19 +20,19 @@ void MOTOR_PID_CHASSIS_INIT()
 void chassis_task()
 {
     //云台yaw轴弧度制角度前馈
-    GIMBAL_RAD_FORWARD(0.00001f);
+    GIMBAL_RAD_FORWARD(0.0001f);
     //计算底盘跟随所需补偿角速度
     CHASSIS_FOLLOW_CLT();
     //映射当前目标速度
     speed_mapping(&chassis_data,mecanumNumber,DBUS,DBUS.Remote.S2);
     //底盘解算
-    MecanumResolve(chassis_data.wheel_rmp,chassis_data.vx_real,chassis_data.vy_real,chassis_data.vr,&mecanumNumber);
+    MecanumResolve(chassis_data.wheel_rmp,chassis_data.vx_real,chassis_data.vy_real,chassis_data.vr_real,&mecanumNumber);
 
     //计算各轮PID输出
     MOTOR_PID_CHASSIS_CLT();
 
     //CAN发送
-    MOTOR_CAN_CHASSIS_SEND();
+    MOTOR_CAN_CHASSIS_SEND(DBUS.Remote.S2);
 }
 
 //映射速度（mm/s）
@@ -44,9 +44,9 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
         //小陀螺模式
         case 1:
             //将遥控器摇杆值映射成速度（mm/s）(rad/s)
-            mapping_data->vx = mecanumInit_t.max_vx_speed/DBUS.Remote.CH3;
-            mapping_data->vy = mecanumInit_t.max_vy_speed/DBUS.Remote.CH2;
-            mapping_data->vr = mecanumInit_t.max_vw_speed/DBUS.Remote.CH1;
+            mapping_data->vx = DBUS.Remote.CH3 * mecanumInit_t.max_vx_speed / 660.0;
+            mapping_data->vy = DBUS.Remote.CH2 * mecanumInit_t.max_vy_speed / 660.0;
+            mapping_data->vr = DBUS.Remote.CH1 * mecanumInit_t.max_vw_speed / 660.0;
             //加入底盘跟随后的实际目标速度（mm/s）(rad/s)
             mapping_data->vx_real = mapping_data->vx * cosf(RT_data.rx.gimbal_yaw_rad) + mapping_data->vy * (-sinf(RT_data.rx.gimbal_yaw_rad));
             mapping_data->vy_real = mapping_data->vx * sinf(RT_data.rx.gimbal_yaw_rad) + mapping_data->vy * cosf(RT_data.rx.gimbal_yaw_rad);
@@ -54,8 +54,8 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
             break;
         //无小陀螺，但保留底盘跟随，云台pitch可动
         case 2:
-        mapping_data->vx = mecanumInit_t.max_vx_speed/DBUS.Remote.CH3;
-        mapping_data->vy = mecanumInit_t.max_vy_speed/DBUS.Remote.CH2;
+        mapping_data->vx = DBUS.Remote.CH3 * mecanumInit_t.max_vx_speed / 660.0;
+        mapping_data->vy = DBUS.Remote.CH2 * mecanumInit_t.max_vy_speed / 660.0;
         mapping_data->vr = 0;  //相较case 1 的更改点
 
         mapping_data->vx_real = mapping_data->vx * cosf(RT_data.rx.gimbal_yaw_rad) + mapping_data->vy * (-sinf(RT_data.rx.gimbal_yaw_rad));
@@ -69,7 +69,7 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
 //云台yaw轴相对于底盘弧度制角度前馈
 void GIMBAL_RAD_FORWARD(float t)
 {
-    RT_data.rx.gimbal_yaw_rad += chassis_data.vr_real * t;
+    RT_data.rx.gimbal_yaw_rad += chassis_data.vr_real * t / 57.3f;
 }
 
 void CHASSIS_FOLLOW_CLT()
@@ -87,20 +87,27 @@ void MOTOR_PID_CHASSIS_CLT()
 }
 
 //底盘电机CAN发送函数
-void MOTOR_CAN_CHASSIS_SEND()
+void MOTOR_CAN_CHASSIS_SEND(uint8_t mod)
 {
-    DJI_Current_Ctrl(&hcan2,
-                     0x200,
-                     (int16_t)ALL_MOTOR.DJI_3508_Chassis_1.PID_S.Output,
-                     (int16_t)ALL_MOTOR.DJI_3508_Chassis_2.PID_S.Output,
-                     (int16_t)ALL_MOTOR.DJI_3508_Chassis_3.PID_S.Output,
-                     (int16_t)ALL_MOTOR.DJI_3508_Chassis_4.PID_S.Output);
-    DJI_Current_Ctrl(&hcan2,
-                    0x1FF,
-                    0,
-                    0,
-                    0,
-                    0);
+    switch (mod)
+    {
+    case 1:
+    case 2:
+        DJI_Current_Ctrl(&hcan2,
+                         0x200,
+                         (int16_t)ALL_MOTOR.DJI_3508_Chassis_1.PID_S.Output,
+                         (int16_t)ALL_MOTOR.DJI_3508_Chassis_2.PID_S.Output,
+                         (int16_t)ALL_MOTOR.DJI_3508_Chassis_3.PID_S.Output,
+                         (int16_t)ALL_MOTOR.DJI_3508_Chassis_4.PID_S.Output);
+        DJI_Current_Ctrl(&hcan2,
+                        0x1FF,
+                        0,
+                        0,
+                        0,
+                        0);
+        break;
+    default:
+        break;
+    }
 }
-//计算底盘跟随补偿角速度
 

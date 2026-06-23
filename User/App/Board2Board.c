@@ -19,18 +19,23 @@ void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float
     TX_data->tx.buf_one[1] = (ch0>> 8) & 0xFF;
     TX_data->tx.buf_one[2] = ch1 & 0xFF;
     TX_data->tx.buf_one[3] = (ch1>> 8) & 0xFF;
-    memcpy(TX_data->tx.buf_one + 4, &vr_TX, 4);
+    memcpy(TX_data->tx.buf_one + 4 , &vr_TX, 4);
+
     //拆分陀螺仪下，y角速度
     memcpy(TX_data->tx.buf_two ,&IMU_Data_TX.gyro[0], 4);
     memcpy(TX_data->tx.buf_two + 4, &IMU_Data_TX.gyro[1], 4);
     //拆分陀螺仪z角速度与云台yaw轴相对于底盘的弧度制角度
     memcpy(TX_data->tx.buf_three ,&IMU_Data_TX.gyro[2], 4);
     memcpy(TX_data->tx.buf_three + 4, &yaw_rad_TX, 4);
+
+    TX_data->tx.buf_four[0] = DBUS_TX.Remote.S2 & 0xFF;
+    TX_data->tx.buf_four[1] = DBUS_TX.Remote.S1 & 0xFF;
     //CAN发送所有数据
     //由于CAN一帧只能发送八字节数据，所以分三帧发送
     canx_send_data(&hcan1, 0x226, TX_data->tx.buf_one);
     canx_send_data(&hcan1, 0x227, TX_data->tx.buf_two);
     canx_send_data(&hcan1, 0x228, TX_data->tx.buf_three);
+    canx_send_data(&hcan1, 0x225, TX_data->tx.buf_four);
 }
 void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx_data)
 {
@@ -38,9 +43,17 @@ void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx
     //共用体可以平滑转换数据类型且不改变二进制编码
     RX_Data_f F_data = {0};
     RX_Data_16 i16_data = {0};
+    RX_Data_8 u8_data = {0};
     //根据帧头选择解析的数据
     switch (stdid)
     {
+        case 0x225:
+            //解算遥控器S1,S2数据
+            u8_data.Data = rx_data[0];
+            RX_data->rx.DBUS.Remote.S2 = u8_data.Data_u8;
+            u8_data.Data = rx_data[1];
+            RX_data->rx.DBUS.Remote.S1 = u8_data.Data_u8;
+            break;
         case 0x226:
             //解算ch0数据
             i16_data.Data[0] = rx_data[0];

@@ -18,7 +18,7 @@ void Gimbal_task()
     MOTOR_GIMBAL_CLT();
 
     //CAN发送
-    MOTOR_GIMBAL_CAN_SEND();
+    MOTOR_GIMBAL_CAN_SEND(RT_data.rx.DBUS.Remote.S2);
 
 
 }
@@ -86,26 +86,30 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
         //小陀螺模式，云台oitch固定为中值
         case 1:
             //解算云台yaw真正的角速度与双环角度目标
-            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
+            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0 * yaw_omega_max / 660.0;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
             ALL_MOTOR.m_dm4310_y_t.DATA.Aim = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
             //保持pitch轴在中值
             Gimbal_data.angle.pitch.rad_target += Gimbal_data.omega.pitch.omega_compensation * 0.0001;
             ALL_MOTOR.m_dm4310_p_t.DATA.Aim = Gimbal_data.angle.pitch.encoder_mid + Gimbal_data.angle.pitch.rad_target * 8192 / 6.28f;
-        break;
+            break;
         //无小陀螺，但保留底盘跟随，云台pitch可动
         case 2:
             //解算云台yaw真正的角速度与双环角度目标
-            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0/yaw_omega_max;
+            Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0 * yaw_omega_max / 660.0;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
             ALL_MOTOR.m_dm4310_y_t.DATA.Aim = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
+            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
+            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
             //解算云台pitch真正的角速度与双环角度目标
-            Gimbal_data.omega.pitch.omega_remote = RT_data.rx.DBUS.Remote.CH1/pitch_omega_max;
+            Gimbal_data.omega.pitch.omega_remote = RT_data.rx.DBUS.Remote.CH1 * pitch_omega_max / 660.0;
             Gimbal_data.angle.pitch.rad_target += (Gimbal_data.omega.pitch.omega_remote + Gimbal_data.omega.pitch.omega_compensation) * 0.0001;
             ALL_MOTOR.m_dm4310_p_t.DATA.Aim = Gimbal_data.angle.pitch.rad_target * 8192 / 6.28f;
-            if (Gimbal_data.angle.pitch.rad_target > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
-            if (Gimbal_data.angle.pitch.rad_target < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
-        break;
+            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
+            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
+            break;
+        default:
+            break;
     }
 }
 //计算云台两电机的输出
@@ -118,18 +122,26 @@ void MOTOR_GIMBAL_CLT()
     PID_Calculate(&ALL_MOTOR.m_dm4310_p_t.PID_S,Gimbal_data.omega.pitch.rmp_now,ALL_MOTOR.m_dm4310_p_t.PID_P.Output);
 }
 //云台电机CAN发送
-void MOTOR_GIMBAL_CAN_SEND()
+void MOTOR_GIMBAL_CAN_SEND(uint8_t mod)
 {
-    DJI_Current_Ctrl(&hcan2,
-                    0x1FE,
-                    (int16_t)ALL_MOTOR.m_dm4310_y_t.PID_S.Output,
-                    (int16_t)ALL_MOTOR.m_dm4310_p_t.PID_S.Output,
-                    0,
-                    0);
-    DJI_Current_Ctrl(&hcan2,
-                    0x2FE,
-                    0,
-                    0,
-                    0,
-                    0);
+    switch (mod)
+    {
+    case 1:
+    case 2:
+        DJI_Current_Ctrl(&hcan2,
+                        0x300,
+                        (int16_t)ALL_MOTOR.m_dm4310_y_t.PID_S.Output,
+                        (int16_t)ALL_MOTOR.m_dm4310_p_t.PID_S.Output,
+                        0,
+                        0);
+        DJI_Current_Ctrl(&hcan2,
+                        0x2FE,
+                        0,
+                        0,
+                        0,
+                        0);
+        break;
+    default:
+        break;
+    }
 }

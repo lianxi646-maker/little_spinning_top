@@ -12,10 +12,10 @@ typedef struct
     float rotate_x_offset;    /* 相对于底盘中心的x轴旋转偏移量(mm) */
     float rotate_y_offset;    /* 相对于底盘中心的y轴旋转偏移量(mm) */
     float deceleration_ratio; /* 电机减速比 */
-    int max_vx_speed;         /* 底盘的x轴的最大速度(mm/s) */
-    int max_vy_speed;         /* 底盘的y轴的最大速度(mm/s) */
-    int max_vw_speed;         /* 底盘的自转的最大速度(degree/s) */
-    int max_wheel_ramp;       /* 3508最大转速 */
+    float max_vx_speed;         /* 底盘的x轴的最大速度(mm/s) */
+    float max_vy_speed;         /* 底盘的y轴的最大速度(mm/s) */
+    float max_vw_speed;         /* 底盘的自转的最大速度(degree/s) */
+    float max_wheel_ramp;       /* 3508最大转速 */
     // 每一个轮子的旋转比率//与旋转中心点相关
     float raid_fr;            // 右前
     float raid_fl;            // 左前

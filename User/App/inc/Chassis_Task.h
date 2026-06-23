@@ -30,7 +30,7 @@ void MOTOR_PID_CHASSIS_INIT();
 void chassis_task();
 void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumInit_t,DBUS_Typedef DBUS,uint8_t ControlWay);
 void MOTOR_PID_CHASSIS_CLT();
-void MOTOR_CAN_CHASSIS_SEND();
+void MOTOR_CAN_CHASSIS_SEND(uint8_t mod);
 void CHASSIS_FOLLOW_CLT();
 void GIMBAL_RAD_FORWARD(float t);
 
