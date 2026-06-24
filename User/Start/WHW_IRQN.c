@@ -47,7 +47,7 @@ void StartDefiantTask(void const * argument)
     currentTimeDefiant = xTaskGetTickCount();
     for(;;)
     {
-		Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad);
+		Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad ,ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle);
     	currentTimeDefiant += 2;
     	osDelayUntil(currentTimeDefiant);
     }

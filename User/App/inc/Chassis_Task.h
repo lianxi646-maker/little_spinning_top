@@ -19,6 +19,8 @@ typedef struct
     float vr_follow;
     PID_t vr_follow_PID_P;
 
+    float yaw_encoder;
+
     float wheel_rmp[4];
 }ChassisData_TypDef;
 

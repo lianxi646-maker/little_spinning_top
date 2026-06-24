@@ -18,6 +18,7 @@ typedef struct
         DBUS_Typedef DBUS;
         float chassis_vr;
         float gimbal_yaw_rad;
+        float gimbal_yaw_degree;
     }rx;
 
     struct
@@ -50,7 +51,7 @@ typedef union
 
 extern RT_DATA_TypDef RT_data;
 
-void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX);
+void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX ,float yaw_deeger_TX);
 void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx_data);
 
 #endif //C_BOARD_FRAMEWORK_BOARD2BOARD_H

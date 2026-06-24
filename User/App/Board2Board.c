@@ -8,7 +8,7 @@
 RT_DATA_TypDef RT_data = {0};
 
 //发送函数
-void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX)
+void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX ,float yaw_degree_TX)
 {
     //将int16_t类型数据转化为uint16_t类型数据（二进制编码无变化（只适用于相同字节的整形，不同字节或同字节不同类型均会改变二进制编码））
     uint16_t ch0 = (uint16_t)DBUS_TX.Remote.CH0;
@@ -30,6 +30,7 @@ void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float
 
     TX_data->tx.buf_four[0] = DBUS_TX.Remote.S2 & 0xFF;
     TX_data->tx.buf_four[1] = DBUS_TX.Remote.S1 & 0xFF;
+    memcpy(TX_data->tx.buf_four + 2, &yaw_degree_TX, 4);
     //CAN发送所有数据
     //由于CAN一帧只能发送八字节数据，所以分三帧发送
     canx_send_data(&hcan1, 0x226, TX_data->tx.buf_one);
@@ -53,6 +54,11 @@ void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx
             RX_data->rx.DBUS.Remote.S2 = u8_data.Data_u8;
             u8_data.Data = rx_data[1];
             RX_data->rx.DBUS.Remote.S1 = u8_data.Data_u8;
+            F_data.Data[0] = rx_data[2];
+            F_data.Data[1] = rx_data[3];
+            F_data.Data[2] = rx_data[4];
+            F_data.Data[3] = rx_data[5];
+            RX_data->rx.gimbal_yaw_degree = F_data.Data_f;
             break;
         case 0x226:
             //解算ch0数据

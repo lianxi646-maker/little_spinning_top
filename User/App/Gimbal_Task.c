@@ -26,9 +26,9 @@ void Gimbal_task()
 //初始化云台电机PID与上电时角度静差
 void MOTOR_PID_GIMBAL_INIT()
 {
-    //初始化上电时电机角度误差
-    Gimbal_data.error.yaw_zero = ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite;
-    Gimbal_data.error.pitch_zero = ALL_MOTOR.m_dm4310_p_t.DATA.Angle_Infinite;
+    // //初始化上电时电机角度误差
+    // Gimbal_data.error.yaw_zero = ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite;
+    // Gimbal_data.error.pitch_zero = ALL_MOTOR.m_dm4310_p_t.DATA.Angle_Infinite;
     //初始化云台pitch编码器中值
     Gimbal_data.angle.pitch.encoder_mid = 4000;
     //初始化云台yaw轴PID
@@ -47,8 +47,8 @@ void MOTOR_PID_GIMBAL_INIT()
 void Gimbal_angle_update()
 {
     //更新云台yaw相对于底盘系角度   fomd()为取模函数
-    Gimbal_data.angle.yaw.degree = (ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite - Gimbal_data.error.yaw_zero) * 360.0f / 8192;
-    Gimbal_data.angle.yaw.rad_Infinite = Gimbal_data.angle.yaw.degree/57.3;
+    //Gimbal_data.angle.yaw.degree = (ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite - Gimbal_data.error.yaw_zero) * 360.0f / 8192;
+    Gimbal_data.angle.yaw.rad_Infinite = ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle / 57.3;
     Gimbal_data.angle.yaw.rad = fmod(Gimbal_data.angle.yaw.rad_Infinite, 6.28f);
     //将云台yaw相对于底盘系的角度归化为[-Π,Π]
     if (Gimbal_data.angle.yaw.rad > 3.14f) Gimbal_data.angle.yaw.rad -= 6.28f;
@@ -66,10 +66,10 @@ void Gimbal_angle_update()
 //用底盘陀螺仪和云台Pitch轴陀螺仪解算出当前云台两电机的rpm
 void Gimbal_rmp_reslove()
 {
-    //解算云台yaw轴rpm
+    //解算云台yaw轴相对底盘系rpm
     Gimbal_data.omega.yaw.omega_now = -(RT_data.rx.IMU_Data.gyro[2]) - IMU_Data.gyro[0]*sinf(Gimbal_data.angle.pitch.rad) + IMU_Data.gyro[2]*cosf(Gimbal_data.angle.pitch.rad);
     Gimbal_data.omega.yaw.rmp_now = Gimbal_data.omega.yaw.omega_now*9.55f;
-    //解算云台pitch轴rpm
+    //解算云台pitch轴相对于底盘系rpm
     Gimbal_data.omega.pitch.omega_now = sinf(Gimbal_data.angle.yaw.rad)*RT_data.rx.IMU_Data.gyro[0] - RT_data.rx.IMU_Data.gyro[1]*cosf(Gimbal_data.angle.yaw.rad) + IMU_Data.gyro[1];
     Gimbal_data.omega.pitch.rmp_now = Gimbal_data.omega.pitch.omega_now*9.55f;
 }

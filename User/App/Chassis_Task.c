@@ -47,7 +47,7 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
             mapping_data->vx = DBUS.Remote.CH3 * mecanumInit_t.max_vx_speed / 660.0;
             mapping_data->vy = DBUS.Remote.CH2 * mecanumInit_t.max_vy_speed / 660.0;
             mapping_data->vr = DBUS.Remote.CH1 * mecanumInit_t.max_vw_speed / 660.0;
-            //加入底盘跟随后的实际目标速度（mm/s）(rad/s)
+            //加入底盘跟随与小陀螺后的实际目标速度（mm/s）(rad/s)
             mapping_data->vx_real = mapping_data->vx * cosf(RT_data.rx.gimbal_yaw_rad) + mapping_data->vy * (-sinf(RT_data.rx.gimbal_yaw_rad));
             mapping_data->vy_real = mapping_data->vx * sinf(RT_data.rx.gimbal_yaw_rad) + mapping_data->vy * cosf(RT_data.rx.gimbal_yaw_rad);
             mapping_data->vr_real = mapping_data->vr + mapping_data->vr_follow;
@@ -69,12 +69,14 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
 //云台yaw轴相对于底盘弧度制角度前馈
 void GIMBAL_RAD_FORWARD(float t)
 {
-    RT_data.rx.gimbal_yaw_rad += chassis_data.vr_real * t / 57.3f;
+    RT_data.rx.gimbal_yaw_degree += chassis_data.vr_real * t ;
+    RT_data.rx.gimbal_yaw_rad = RT_data.rx.gimbal_yaw_degree / 57.3f;
+    chassis_data.yaw_encoder = RT_data.rx.gimbal_yaw_degree /0.044f;
 }
-
+//计算底盘跟随所需速度
 void CHASSIS_FOLLOW_CLT()
 {
-    chassis_data.vr_follow = PID_Calculate(&chassis_data.vr_follow_PID_P,RT_data.rx.gimbal_yaw_rad,0);
+    chassis_data.vr_follow = PID_Calculate(&chassis_data.vr_follow_PID_P,chassis_data.yaw_encoder,0);
 }
 
 //底盘电机PID计算函数
