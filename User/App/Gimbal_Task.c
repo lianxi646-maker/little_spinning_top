@@ -11,7 +11,7 @@ void Gimbal_task()
     //解算云台电机转速
     Gimbal_rmp_reslove();
 
-    //将遥控器值映射到电机目标速度
+    //解算云台自稳补偿角速度并结合遥控器值映射到电机目标速度
     Gimbal_rmp_mapping(0.5f,0.5f,6000.0f,2000.0f,RT_data.rx.DBUS.Remote.S1);
 
     //计算云台电机PID输出
@@ -48,8 +48,8 @@ void Gimbal_angle_update()
 {
     //更新云台yaw相对于底盘系角度   fomd()为取模函数
     //Gimbal_data.angle.yaw.degree = (ALL_MOTOR.m_dm4310_y_t.DATA.Angle_Infinite - Gimbal_data.error.yaw_zero) * 360.0f / 8192;
-    Gimbal_data.angle.yaw.rad_Infinite = ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle / 57.3;
-    Gimbal_data.angle.yaw.rad = fmod(Gimbal_data.angle.yaw.rad_Infinite, 6.28f);
+    Gimbal_data.angle.yaw.rad_real = ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle / 57.3;
+    Gimbal_data.angle.yaw.rad = fmod(Gimbal_data.angle.yaw.rad_real, 6.28f);
     //将云台yaw相对于底盘系的角度归化为[-Π,Π]
     if (Gimbal_data.angle.yaw.rad > 3.14f) Gimbal_data.angle.yaw.rad -= 6.28f;
     if (Gimbal_data.angle.yaw.rad < -3.14f) Gimbal_data.angle.yaw.rad += 6.28f;

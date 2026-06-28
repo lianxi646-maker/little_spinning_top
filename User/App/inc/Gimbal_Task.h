@@ -29,7 +29,7 @@ typedef struct
         struct
         {
             float rad;              //规划到[-Π,Π]的角度
-            float rad_Infinite;     //未规划的连续弧度制角度
+            float rad_real;     //未规划的连续弧度制角度
             float rad_target;       //弧度制角度目标值
             float degree;           //未规划的连续角度制角度
         }yaw;
