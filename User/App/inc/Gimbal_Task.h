@@ -71,6 +71,6 @@ void Gimbal_rmp_reslove();
 void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_angle_max , float pitch_angle_min, uint8_t mod);
 void MOTOR_GIMBAL_CLT();
 void Gimbal_task();
-void MOTOR_GIMBAL_CAN_SEND(uint8_t mod);
+void MOTOR_GIMBAL_CAN_SEND(uint16_t stdid);
 
 #endif

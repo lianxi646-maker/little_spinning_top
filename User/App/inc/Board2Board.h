@@ -49,9 +49,18 @@ typedef union
     uint8_t Data_u8;
 }RX_Data_8;
 
+typedef struct
+{
+    uint8_t offcounter;
+    uint8_t isonline;
+    uint8_t offline_time;
+}Board2Board_linetest;
+
 extern RT_DATA_TypDef RT_data;
+extern Board2Board_linetest Board2Board_linecheck;
 
 void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX ,float yaw_deeger_TX);
 void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx_data);
+uint8_t Board_to_Board_linetest();
 
 #endif //C_BOARD_FRAMEWORK_BOARD2BOARD_H

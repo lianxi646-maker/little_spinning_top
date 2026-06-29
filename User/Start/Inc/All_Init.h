@@ -34,6 +34,8 @@
 #include "mahony_filter.h"
 #include "VOFA.h"
 #include "Bottom.h"
+#include "Board2Board.h"
+#include "error_task.h"
 
 void Everying_Init(void);
 extern uint8_t VT13_RX_DATA[21];

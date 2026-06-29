@@ -6,6 +6,7 @@
 
 //定义收发类型变量
 RT_DATA_TypDef RT_data = {0};
+Board2Board_linetest Board2Board_linecheck = {0};
 
 //发送函数
 void Board_to_Board_transmit(RT_DATA_TypDef *TX_data,DBUS_Typedef DBUS_TX, float vr_TX ,IMU_Data_t IMU_Data_TX ,float yaw_rad_TX ,float yaw_degree_TX)
@@ -107,4 +108,20 @@ void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx
         default:
             break;
     }
+}
+
+uint8_t Board_to_Board_linetest()
+{
+    Board2Board_linecheck.offline_time = 80;
+    Board2Board_linecheck.offcounter++;
+    if (Board2Board_linecheck.offcounter >= Board2Board_linecheck.offline_time)
+    {
+        Board2Board_linecheck.offcounter = Board2Board_linecheck.offline_time;
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+    return 0 ;
 }

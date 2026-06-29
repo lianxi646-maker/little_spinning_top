@@ -3,7 +3,7 @@
 #include "Chassis_Task.h"
 #include "Board2Board.h"
 
-//34ms,画UI任务
+//离线检测任务
 void StartRobotUITask(void const * argument)
 {
     portTickType currentTimeRobotUI;
@@ -11,10 +11,13 @@ void StartRobotUITask(void const * argument)
 
     for (;;)
     {
-
-    	currentTimeRobotUI += 40;
-    	osDelayUntil(currentTimeRobotUI);
-
+    	Board2Board_linecheck.isonline = Board_to_Board_linetest();
+    	remote_linecheck.isonline = DBUS_onlinetest();
+    	if ((Board2Board_linecheck.isonline == 0) ||(remote_linecheck.isonline == 0))
+    	{
+    		error_task(0x200,0x300);
+    	}
+    	osDelay(2);
     }
 }
 
@@ -36,11 +39,11 @@ void StartMoveTask(void const * argument)
     	chassis_task();
     	//执行云台电机总任务
     	Gimbal_task();
-    	vTaskDelay (1);
+    	osDelay(2);
     }
 }
 
-//对抗控制任务(电容,发射)
+//板间通信任务
 void StartDefiantTask(void const * argument)
 {
     portTickType currentTimeDefiant;
@@ -48,8 +51,7 @@ void StartDefiantTask(void const * argument)
     for(;;)
     {
 		Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad ,ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle);
-    	currentTimeDefiant += 2;
-    	osDelayUntil(currentTimeDefiant);
+    	osDelay(2);
     }
 }
 
@@ -162,10 +164,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 			case 0x204://轮4
 				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_4.DATA, rx_data);
 				break;
-			case 0x301:
+			case 0x301://云台yaw
 				dm4310_RXdata(&ALL_MOTOR.m_dm4310_y_t, rx_data);
 				break;
-			case 0x302:
+			case 0x302://云台pitch
 				dm4310_RXdata(&ALL_MOTOR.m_dm4310_p_t, rx_data);
 				break;
 			default:

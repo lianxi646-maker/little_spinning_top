@@ -1,6 +1,7 @@
 #include "Chassis_Task.h"
 
  ChassisData_TypDef chassis_data = {0};     //定义麦轮各速度
+remote_linetest remote_linecheck = {0};  //定义遥控器通信检测结构体
 
 //初始化底盘电机PID
 void MOTOR_PID_CHASSIS_INIT()
@@ -32,7 +33,7 @@ void chassis_task()
     MOTOR_PID_CHASSIS_CLT();
 
     //CAN发送
-    MOTOR_CAN_CHASSIS_SEND(DBUS.Remote.S2);
+    MOTOR_CAN_CHASSIS_SEND(0x200);
 }
 
 //映射速度（mm/s）
@@ -63,6 +64,7 @@ void speed_mapping(ChassisData_TypDef *mapping_data,mecanumInit_typdef mecanumIn
         mapping_data->vr_real = mapping_data->vr + mapping_data->vr_follow;
             break;
         default:
+        error_task(0x200,0x300);
             break;
     }
 }
@@ -89,27 +91,28 @@ void MOTOR_PID_CHASSIS_CLT()
 }
 
 //底盘电机CAN发送函数
-void MOTOR_CAN_CHASSIS_SEND(uint8_t mod)
+void MOTOR_CAN_CHASSIS_SEND(uint16_t stdid)
 {
-    switch (mod)
-    {
-    case 1:
-    case 2:
         DJI_Current_Ctrl(&hcan2,
-                         0x200,
+                         stdid,
                          (int16_t)ALL_MOTOR.DJI_3508_Chassis_1.PID_S.Output,
                          (int16_t)ALL_MOTOR.DJI_3508_Chassis_2.PID_S.Output,
                          (int16_t)ALL_MOTOR.DJI_3508_Chassis_3.PID_S.Output,
                          (int16_t)ALL_MOTOR.DJI_3508_Chassis_4.PID_S.Output);
-        DJI_Current_Ctrl(&hcan2,
-                        0x1FF,
-                        0,
-                        0,
-                        0,
-                        0);
-        break;
-    default:
-        break;
+}
+
+uint8_t DBUS_onlinetest()
+{
+
+    if (remote_linecheck.offcounter >= DBUS.ONLINE_JUDGE_TIME)
+    {
+        remote_linecheck.offcounter = DBUS.ONLINE_JUDGE_TIME;
+        return 0;
     }
+    else
+    {
+        return 1;
+    }
+    return 0;
 }
 

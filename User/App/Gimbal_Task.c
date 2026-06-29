@@ -18,7 +18,7 @@ void Gimbal_task()
     MOTOR_GIMBAL_CLT();
 
     //CAN发送
-    MOTOR_GIMBAL_CAN_SEND(RT_data.rx.DBUS.Remote.S2);
+    MOTOR_GIMBAL_CAN_SEND(0x300);
 
 
 }
@@ -109,6 +109,7 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
             if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
             break;
         default:
+        error_task(0x200,0x300);
             break;
     }
 }
@@ -122,26 +123,14 @@ void MOTOR_GIMBAL_CLT()
     PID_Calculate(&ALL_MOTOR.m_dm4310_p_t.PID_S,Gimbal_data.omega.pitch.rmp_now,ALL_MOTOR.m_dm4310_p_t.PID_P.Output);
 }
 //云台电机CAN发送
-void MOTOR_GIMBAL_CAN_SEND(uint8_t mod)
+void MOTOR_GIMBAL_CAN_SEND(uint16_t stdid)
 {
-    switch (mod)
-    {
-    case 1:
-    case 2:
-        DJI_Current_Ctrl(&hcan2,
-                        0x300,
+
+        DM_Motor_Send(&hcan2,
+                        stdid,
                         (int16_t)ALL_MOTOR.m_dm4310_y_t.PID_S.Output,
                         (int16_t)ALL_MOTOR.m_dm4310_p_t.PID_S.Output,
                         0,
                         0);
-        DJI_Current_Ctrl(&hcan2,
-                        0x2FE,
-                        0,
-                        0,
-                        0,
-                        0);
-        break;
-    default:
-        break;
-    }
+
 }

@@ -20,7 +20,9 @@ set(CPU_FLAGS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard)
 
 add_executable(${CMAKE_PROJECT_NAME}
         User/App/Board2Board.c
-        User/App/inc/Board2Board.h)
+        User/App/inc/Board2Board.h
+        User/App/error_task.c
+        User/App/inc/error_task.h)
 
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(Middlewares/CMSIS)
