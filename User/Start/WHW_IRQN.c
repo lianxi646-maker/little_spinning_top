@@ -11,10 +11,13 @@ void StartRobotUITask(void const * argument)
 
     for (;;)
     {
+    	//接收离线信息
     	Board2Board_linecheck.isonline = Board_to_Board_linetest();
     	remote_linecheck.isonline = DBUS_onlinetest();
+    	//其中一个离线及视为异常状态
     	if ((Board2Board_linecheck.isonline == 0) ||(remote_linecheck.isonline == 0))
     	{
+    		//进入异常任务
     		error_task(0x200,0x300);
     	}
     	osDelay(2);
@@ -133,6 +136,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 		//CAN1
 		switch (can_rx.StdId)
 		{
+			case 0x225:
+				Board_to_Board_receive(&RT_data ,0x225 ,rx_data);
+				break;
 			case 0x226:
 				Board_to_Board_receive(&RT_data ,0x226 ,rx_data);
 				break;

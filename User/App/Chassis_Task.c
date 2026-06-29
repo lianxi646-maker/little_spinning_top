@@ -1,6 +1,6 @@
 #include "Chassis_Task.h"
 
- ChassisData_TypDef chassis_data = {0};     //定义麦轮各速度
+ChassisData_TypDef chassis_data = {0};     //定义麦轮各速度
 remote_linetest remote_linecheck = {0};  //定义遥控器通信检测结构体
 
 //初始化底盘电机PID
@@ -101,18 +101,27 @@ void MOTOR_CAN_CHASSIS_SEND(uint16_t stdid)
                          (int16_t)ALL_MOTOR.DJI_3508_Chassis_4.PID_S.Output);
 }
 
+//遥控离线检测
 uint8_t DBUS_onlinetest()
 {
-
-    if (remote_linecheck.offcounter >= DBUS.ONLINE_JUDGE_TIME)
+    //定义确定遥控离线的计数值
+    remote_linecheck.offline_time = 50;
+    //离线计数自加
+    remote_linecheck.offcounter++;
+    //判断是否离线
+    if (remote_linecheck.offcounter >= remote_linecheck.offline_time)
     {
-        remote_linecheck.offcounter = DBUS.ONLINE_JUDGE_TIME;
+        //防止离线后计数仍累加
+        remote_linecheck.offcounter = remote_linecheck.offline_time;
+        //返回离线信息
         return 0;
     }
     else
     {
+        //返回在线信息
         return 1;
     }
+    //检测程序异常当离线处理
     return 0;
 }
 

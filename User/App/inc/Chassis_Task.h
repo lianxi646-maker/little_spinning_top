@@ -29,6 +29,7 @@ typedef struct
 {
     uint8_t offcounter;
     uint8_t isonline;
+    uint8_t offline_time;
 }remote_linetest;
 
 extern ChassisData_TypDef chassis_data;

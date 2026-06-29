@@ -49,6 +49,7 @@ typedef union
     uint8_t Data_u8;
 }RX_Data_8;
 
+//离线检测相关数据
 typedef struct
 {
     uint8_t offcounter;

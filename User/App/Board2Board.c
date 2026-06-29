@@ -108,20 +108,30 @@ void Board_to_Board_receive(RT_DATA_TypDef *RX_data ,uint16_t stdid ,uint8_t *rx
         default:
             break;
     }
+    //清空离线计数
+    Board2Board_linecheck.offcounter = 0;
 }
 
+//板间通信离线检测
 uint8_t Board_to_Board_linetest()
 {
+    //定义确定离线的计数值
     Board2Board_linecheck.offline_time = 80;
+    //离线计数自加
     Board2Board_linecheck.offcounter++;
+    //检测是否离线
     if (Board2Board_linecheck.offcounter >= Board2Board_linecheck.offline_time)
     {
+        //防止离线后计数不停累加
         Board2Board_linecheck.offcounter = Board2Board_linecheck.offline_time;
+        //返回离线信息
         return 0;
     }
     else
     {
+        //返回在线信息
         return 1;
     }
+    //检测程序异常当离线处理
     return 0 ;
 }
