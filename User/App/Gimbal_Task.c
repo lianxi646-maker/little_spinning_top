@@ -99,8 +99,6 @@ void Gimbal_rmp_mapping(float yaw_omega_max, float pitch_omega_max, float pitch_
             Gimbal_data.omega.yaw.omega_remote = RT_data.rx.DBUS.Remote.CH0 * yaw_omega_max / 660.0;
             Gimbal_data.angle.yaw.rad_target += (Gimbal_data.omega.yaw.omega_remote + Gimbal_data.omega.yaw.omega_compensation) * 0.0001;
             ALL_MOTOR.m_dm4310_y_t.DATA.Aim = Gimbal_data.angle.yaw.rad_target * 8192 / 6.28f;
-            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim > pitch_angle_max) Gimbal_data.angle.pitch.rad_target = pitch_angle_max;
-            if (ALL_MOTOR.m_dm4310_p_t.DATA.Aim < pitch_angle_min) Gimbal_data.angle.pitch.rad_target = pitch_angle_min;
             //解算云台pitch真正的角速度与双环角度目标
             Gimbal_data.omega.pitch.omega_remote = RT_data.rx.DBUS.Remote.CH1 * pitch_omega_max / 660.0;
             Gimbal_data.angle.pitch.rad_target += (Gimbal_data.omega.pitch.omega_remote + Gimbal_data.omega.pitch.omega_compensation) * 0.0001;
