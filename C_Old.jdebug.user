@@ -11,11 +11,11 @@ OpenDocument="All_Init.c", FilePath="D:/STM32Project/C_Board_Framework_Old/User/
 OpenDocument="startup_stm32f407xx.s", FilePath="D:/STM32Project/C_Board_Framework_Old/startup_stm32f407xx.s", Line=75
 OpenDocument="WHW_IRQN.c", FilePath="D:/STM32Project/C_Board_Framework_Old/User/Start/WHW_IRQN.c", Line=0
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=475, h=644, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=503, h=326, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=475, h=638, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=503, h=342, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 OpenWindow="Memory 1", DockArea=BOTTOM, x=3, y=0, w=212, h=395, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000268
-OpenWindow="Watched Data 1", DockArea=RIGHT, x=0, y=1, w=503, h=771, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=475, h=453, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=RIGHT, x=0, y=1, w=503, h=755, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=475, h=459, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 OpenWindow="Data Sampling", DockArea=BOTTOM, x=1, y=0, w=403, h=395, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=0, UniformSampleSpacing=0
 OpenWindow="Timeline", DockArea=BOTTOM, x=2, y=0, w=1646, h=395, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=1, DataPaneShown=1, PowerPaneShown=1, CodePaneShown=1, PinCursor="Cursor Movable", TimePerDiv="1 ns / Div", TimeStampFormat="Time", DataGraphDrawAsPoints=0, DataGraphLegendShown=1, DataGraphUniformSampleSpacing=0, DataGraphLegendPosition="1419;-69", DataGraphShowNamesAtCursor=0, PowerGraphDrawAsPoints=0, PowerGraphLegendShown=1, PowerGraphAvgFilterTime=Off, PowerGraphAvgFilterLen=Off, PowerGraphUniformSampleSpacing=0, PowerGraphLegendPosition="1419;-69", CodeGraphLegendShown=1, CodeGraphLegendPosition="1370;0"
 OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=296, h=395, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0

@@ -18,8 +18,8 @@ void Shoot_INIT()
     shoot_data.motor_ratio = 36;
     shoot_data.feed_ratio = 2.5f;
     shoot_data.slot_num = 9;
-    shoot_data.Lfire_speed = 7000;
-    shoot_data.Rfire_speed = -7000;
+    shoot_data.Lfire_speed = 6000;
+    shoot_data.Rfire_speed = -6000;
     shoot_data.dir_sign = -1;
     shoot_data.target_freq = 15;
     shoot_data.Counts_Shoot = shoot_data.motor_ratio  * 8192.0f * shoot_data.feed_ratio / shoot_data.slot_num; //计算拨盘每一发需要的编码器值
@@ -34,10 +34,10 @@ void Shoot_PID_INIT()
     float PID_test_friction_l[3] = {13.0f, 0.0001f, 0.0f};
     PID_Init(&ALL_MOTOR.DJI_3508_Shoot_L.PID_S,16384,6000,PID_test_friction_l,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
 
-    float PID_test_Disc_P[3] = {0.35f,0.0f,0.0f};
+    float PID_test_Disc_P[3] = {0.23f,0.0f,0.0f};
     PID_Init(&ALL_MOTOR.DJI_2006_Disc.PID_P,15000,7000,PID_test_Disc_P,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
 
-    float PID_test_Disc_S[3] = {15.0f,0.0001f,0.0f};
+    float PID_test_Disc_S[3] = {15.0f,0.0f,0.0f};
     PID_Init(&ALL_MOTOR.DJI_2006_Disc.PID_S,10000,5000,PID_test_Disc_S,0.0f,0.0f,0.0f,0.0f,0.0f,Integral_Limit);
 }
 
@@ -152,3 +152,5 @@ void Shoot_CAN_send(uint16_t stdid)
                          (int16_t)ALL_MOTOR.DJI_2006_Disc.PID_S.Output,
                          0);
 }
+
+
