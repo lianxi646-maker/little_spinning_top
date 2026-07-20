@@ -18,6 +18,14 @@
             }
         },
         {
+            "name": "chassis",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BOARD_ROLE": "CHASSIS"
+            }
+        },
+        {
             "name": "Release",
             "inherits": "default",
             "cacheVariables": {
@@ -29,6 +37,10 @@
         {
             "name": "Debug",
             "configurePreset": "Debug"
+        },
+        {
+            "name": "chassis",
+            "configurePreset": "chassis"
         },
         {
             "name": "Release",

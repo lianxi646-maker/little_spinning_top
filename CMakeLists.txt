@@ -11,6 +11,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
+set(BOARD_ROLE "" CACHE STRING "Board role selected by CMake preset")
+set_property(CACHE BOARD_ROLE PROPERTY STRINGS "" "CHASSIS")
+message("Board role: " ${BOARD_ROLE})
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
@@ -22,7 +26,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/App/Board2Board.c
         User/App/inc/Board2Board.h
         User/App/error_task.c
-        User/App/inc/error_task.h)
+        User/App/inc/error_task.h
+        User/App/inc/Motor_test.h
+        User/App/Motor_test.c)
 
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(Middlewares/CMSIS)
@@ -33,6 +39,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
         STM32G473xx USE_HAL_DRIVER ARM_MATH_CM4 __FPU_PRESENT=1U
         HAL_ASSERT_DISABLE=1 ARM_MATH_MATRIX_CHECK=0 ARM_MATH_ROUNDING=0
         User_Release
+        $<$<STREQUAL:${BOARD_ROLE},CHASSIS>:BOARD_CHASSIS>
         $<$<CONFIG:Debug>:DEBUG_MODE> $<$<CONFIG:Release>:RELEASE_MODE>
 )
 

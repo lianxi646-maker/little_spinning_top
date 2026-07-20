@@ -2,6 +2,8 @@
 #include "Robot.h"
 #include "Chassis_Task.h"
 #include "Board2Board.h"
+#include "Motor_test.h"
+#include "Shoot_Task.h"
 
 //离线检测任务
 void StartRobotUITask(void const * argument)
@@ -11,37 +13,46 @@ void StartRobotUITask(void const * argument)
 
     for (;;)
     {
-    	//接收离线信息
-    	Board2Board_linecheck.isonline = Board_to_Board_linetest();
-    	remote_linecheck.isonline = DBUS_onlinetest();
-    	//其中一个离线及视为异常状态
-    	if ((Board2Board_linecheck.isonline == 0) ||(remote_linecheck.isonline == 0))
-    	{
-    		//进入异常任务
-    		error_task(0x200,0x300);
-    	}
+    	VOFA_justfloat(ALL_MOTOR.DJI_3508_Shoot_R.DATA.Aim,ALL_MOTOR.DJI_3508_Shoot_R.DATA.Speed_now,ALL_MOTOR.DJI_3508_Shoot_L.DATA.Aim,
+    		ALL_MOTOR.DJI_3508_Shoot_L.DATA.Speed_now,DBUS.Remote.S1,shoot_data.shoot_state,ALL_MOTOR.DJI_2006_Disc.DATA.Aim,ALL_MOTOR.DJI_2006_Disc.DATA.Angle_Infinite,shoot_data.target_pos_cnt,0);
+    	// //接收离线信息
+    	// Board2Board_linecheck.isonline = Board_to_Board_linetest();
+    	// remote_linecheck.isonline = DBUS_onlinetest();
+    	// //其中一个离线及视为异常状态
+    	// if ((Board2Board_linecheck.isonline == 0) ||(remote_linecheck.isonline == 0))
+    	// {
+    	// 	//进入异常任务
+    	// 	error_task(0x200,0x300);
+    	// }
     	osDelay(2);
     }
 }
 
 //运动控制任务
+static uint32_t motor_DWT_Count = 0;
+static float motor_period_s = 0.0f;
 void StartMoveTask(void const * argument)
 {
     portTickType currentTimeMove;
     currentTimeMove = xTaskGetTickCount();
 
-	//初始化麦轮底层参数
-	MecanumInit(&mecanumNumber);
-	//初始化底盘电机PID
-	MOTOR_PID_CHASSIS_INIT();
-	//初始化云台电机PID
-	MOTOR_PID_GIMBAL_INIT();
+	motor_DWT_Count = DWT->CYCCNT;
+	// //初始化麦轮底层参数
+	// MecanumInit(&mecanumNumber);
+	// //初始化底盘电机PID
+	// MOTOR_PID_CHASSIS_INIT();
+	// //初始化云台电机PID
+	// MOTOR_PID_GIMBAL_INIT();
+	Shoot_PID_INIT();
+	Shoot_INIT();
     for (;;)
     {
-    	//执行底盘电机总任务
-    	chassis_task();
-    	//执行云台电机总任务
-    	Gimbal_task();
+    	motor_period_s = DWT_GetDeltaT(&motor_DWT_Count);
+    	Shoot_task(motor_period_s);
+    	// //执行底盘电机总任务
+    	// chassis_task();
+    	// //执行云台电机总任务
+    	// Gimbal_task();
     	osDelay(2);
     }
 }
@@ -53,7 +64,7 @@ void StartDefiantTask(void const * argument)
     currentTimeDefiant = xTaskGetTickCount();
     for(;;)
     {
-		Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad ,ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle);
+		// Board_to_Board_transmit(&RT_data ,DBUS ,chassis_data.vr_real ,IMU_Data ,Gimbal_data.angle.yaw.rad ,ALL_MOTOR.m_dm4310_y_t.DATA.ralativeAngle);
     	osDelay(2);
     }
 }
@@ -136,6 +147,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 		//CAN1
 		switch (can_rx.StdId)
 		{
+			case 0x203://轮3
+				MOTOR_CAN_RX_2006RM(&ALL_MOTOR.DJI_2006_Disc.DATA, rx_data);
+				break;
 			case 0x225:
 				Board_to_Board_receive(&RT_data ,0x225 ,rx_data);
 				break;
@@ -159,23 +173,23 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 		switch (can_rx.StdId)
 		{
             case 0x201://轮1
-                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_1.DATA, rx_data);
+                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Shoot_R.DATA, rx_data);
                 break;
             case 0x202://轮2
-                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_2.DATA, rx_data);
+                MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Shoot_L.DATA, rx_data);
                 break;
-			case 0x203://轮3
-				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_3.DATA, rx_data);
-				break;
-			case 0x204://轮4
-				MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_4.DATA, rx_data);
-				break;
-			case 0x301://云台yaw
-				dm4310_RXdata(&ALL_MOTOR.m_dm4310_y_t, rx_data);
-				break;
-			case 0x302://云台pitch
-				dm4310_RXdata(&ALL_MOTOR.m_dm4310_p_t, rx_data);
-				break;
+			// case 0x203://轮3
+			// 	MOTOR_CAN_RX_2006RM(&ALL_MOTOR.DJI_2006_Disc.DATA, rx_data);
+			// 	break;
+			// case 0x204://轮4
+			// 	MOTOR_CAN_RX_3508RM(&ALL_MOTOR.DJI_3508_Chassis_4.DATA, rx_data);
+			// 	break;
+			// case 0x301://云台yaw
+			// 	dm4310_RXdata(&ALL_MOTOR.m_dm4310_y_t, rx_data);
+			// 	break;
+			// case 0x302://云台pitch
+			// 	dm4310_RXdata(&ALL_MOTOR.m_dm4310_p_t, rx_data);
+			// 	break;
 			default:
 				break;
         }
@@ -211,11 +225,11 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 			__HAL_DMA_DISABLE_IT(huart6.hdmarx, DMA_IT_HT);
 		}
 	}
-	if (huart->Instance == USART1){
-		uint8_t *next_buf = (pData == Referee_Rx_Buf[0]) ? Referee_Rx_Buf[1] : Referee_Rx_Buf[0];
-		HAL_UARTEx_ReceiveToIdle_DMA(huart, next_buf, REFEREE_RXFRAME_LENGTH);
-		__HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);//关闭 DMA 半传中断
-		Referee_System_Frame_Update(pData,Size);
-	}
+	// if (huart->Instance == USART1){
+	// 	uint8_t *next_buf = (pData == Referee_Rx_Buf[0]) ? Referee_Rx_Buf[1] : Referee_Rx_Buf[0];
+	// 	HAL_UARTEx_ReceiveToIdle_DMA(huart, next_buf, REFEREE_RXFRAME_LENGTH);
+	// 	__HAL_DMA_DISABLE_IT(huart1.hdmarx, DMA_IT_HT);//关闭 DMA 半传中断
+	// 	Referee_System_Frame_Update(pData,Size);
+	// }
 }
 

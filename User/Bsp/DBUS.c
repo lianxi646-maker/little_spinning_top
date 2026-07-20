@@ -3,7 +3,7 @@
  * @brief  DBUS 协议解析源文件
  * @version 1.0
  * @date 2026-01-19
- * @author CaoKangqi
+ * @author CaoKangqi5
  */
 
 #include "DBUS.h"
@@ -23,7 +23,6 @@ void DBUS_Resolved(uint8_t* Data, DBUS_Typedef *DBUS)
     DBUS->ONLINE_JUDGE_TIME = DBUS_OFFLINE_TIME;
 
     DBUS_FrameTypeDef* frame = (DBUS_FrameTypeDef*)Data;
-
     // 提取遥控器状态开关位
     DBUS->Remote.S1 = frame->switch_right;
     DBUS->Remote.S2 = frame->switch_left;

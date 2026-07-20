@@ -13,6 +13,8 @@ typedef struct
     DJI_MOTOR_Typedef DJI_3508_Shoot_R;
     DJI_MOTOR_Typedef DJI_3508_Shoot_M;
 
+    DJI_MOTOR_Typedef DJI_2006_Disc;
+
     DJI_MOTOR_Typedef DJI_3508_Chassis_1;
     DJI_MOTOR_Typedef DJI_3508_Chassis_2;
     DJI_MOTOR_Typedef DJI_3508_Chassis_3;
